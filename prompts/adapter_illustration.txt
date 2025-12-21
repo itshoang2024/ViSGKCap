@@ -1,0 +1,20 @@
+Áp dụng thêm các quy tắc sau vì trang có nhiều tranh minh họa, hình tròn đánh số, bong bóng thoại, hoạt động:
+
+1. Trong `caption_detail`, sau tổng quan trang, mô tả cụm minh họa theo cấu trúc:
+
+* trung tâm/tiêu đề trong hình (nếu có),
+* số lượng hình minh họa,
+* vị trí tương đối của từng hình,
+* nhân vật/đối tượng chính + hành động + biểu cảm trực quan (nếu rõ).
+
+2. Bong bóng thoại/nhãn trong hình:
+
+* Luôn dẫn ngữ cảnh: “Trong bong bóng thoại của hình số X có dòng chữ: “...””.
+* Không gom tất cả thoại vào một đoạn OCR tách rời.
+
+3. Nếu có đánh số hình (1,2,3…):
+
+* Nêu thứ tự và vị trí mỗi hình (ví dụ: “hình 1 ở góc trên trái…”).
+* Nếu không chắc vị trí tuyệt đối, dùng mô tả tương đối (trên/dưới/trái/phải/gần trung tâm).
+
+4. Cấm suy luận “bài học đạo đức” ngay cả với sách Đạo đức. Chỉ mô tả những gì thấy và trích chữ đúng ngữ cảnh.

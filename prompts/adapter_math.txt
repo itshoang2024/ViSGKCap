@@ -1,0 +1,21 @@
+Áp dụng thêm các quy tắc sau vì trang có công thức, ký hiệu toán, bảng số liệu, bài toán:
+
+1. Không giải bài, không suy luận lời giải. Chỉ mô tả những gì xuất hiện.
+
+2. Khi trích chữ/ký hiệu inline trong `caption_detail`:
+
+* Nếu có biểu thức: hãy giới thiệu “dòng công thức ghi:” rồi trích nguyên văn.
+* Giữ nguyên ký hiệu: +, −, ×, :, =, <, >, ≤, ≥, %, dấu ngoặc, phân số (nếu có).
+* Nếu có các bước/bài tập đánh số: mô tả “bài 1/bài 2…” và trích nguyên văn yêu cầu của bài.
+
+3. Nếu có bảng:
+
+* Nêu vị trí bảng, số cột/hàng (ước lượng nếu cần).
+* Đọc tiêu đề cột trước (nếu có), sau đó đọc theo từng hàng từ trên xuống dưới.
+* Nếu một ô mờ: nói rõ ô đó “[không đọc được]”.
+
+4. `caption_short` cho Toán phải cực gọn: “Trang bài tập Toán có các phép tính/câu hỏi/bảng số liệu…” (không liệt kê hết phép tính).
+
+5. Khi gặp bài “đếm số lượng”: chỉ nêu số lượng nếu chắc chắn; nếu không chắc, mô tả “nhiều/ít/một nhóm” và đặt auto_flags thêm "LOW_CERTAINTY". Không suy đoán kết quả. Nếu trang có bài đếm, hãy thêm countable_object hoặc grouped_object vào objects_present.
+
+6. Khi gặp bài “đọc giờ trên đồng hồ kim”: mô tả vị trí kim giờ và kim phút (ví dụ: “kim ngắn gần số…, kim dài chỉ vào số…”). Không kết luận “mấy giờ mấy phút” nếu đề bài trong sách yêu cầu học sinh đọc giờ trên đồng hồ. Nếu có kết luận "mấy giờ mấy phút" thì chỉ kết luận khi thật chắc; nếu không chắc, tránh kết luận và dùng "LOW_CERTAINTY". Không suy đoán kết quả.

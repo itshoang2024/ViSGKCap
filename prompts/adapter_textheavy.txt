@@ -1,0 +1,16 @@
+Áp dụng thêm các quy tắc sau vì trang có nhiều đoạn văn/bài đọc/đối thoại:
+
+1. Khi mô tả bố cục, ưu tiên nêu rõ:
+
+* tiêu đề bài/mục,
+* các đoạn văn theo thứ tự,
+* ký hiệu đánh số (nếu có),
+* khung/ô/đề mục nếu xuất hiện.
+
+2. Khi trích chữ inline trong `caption_detail`:
+
+* Với tiêu đề và đề mục: hãy giới thiệu vị trí (trên cùng/giữa trang…) rồi trích nguyên văn trong ngoặc kép.
+* Với đoạn văn dài: có thể nói “một đoạn văn ghi:” rồi trích **theo từng câu hoặc từng dòng**, giữ đúng dấu câu và xuống dòng quan trọng.
+* Nếu là thơ/đồng dao: giữ xuống dòng theo câu thơ (nếu nhìn thấy).
+
+3. Không tóm tắt nội dung đoạn văn bằng “bài kể về…”. Chỉ mô tả cấu trúc và trích chữ cần thiết để người nghe định vị nội dung.
