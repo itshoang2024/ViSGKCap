@@ -37,17 +37,9 @@ wheels/
 *~
 
 # ===== Data files (large files) =====
-data/raw/
-data/processed/
-*.pdf
 *.png
 *.jpg
 *.jpeg
-
-# ===== Output files =====
-output/*.xlsx
-output/*.csv
-output/*.json
 
 # ===== OS files =====
 .DS_Store
