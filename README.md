@@ -6,6 +6,10 @@ Repo này triển khai pipeline **xây dựng dataset Image Captioning tiếng V
 
 ---
 
+<p align="center">
+  <img src="./images/captioning-pipeline.png" alt="Tổng quan pipeline: PDF → PNG → Gemini caption → CSV → Supabase annotate/QC → Postprocess → JSON/JSONL" width="1000" />
+</p>
+
 ## Mục lục
 
 - [Pipeline xây dựng dataset cho bài toán Image Captioning](#pipeline-xây-dựng-dataset-cho-bài-toán-image-captioning)
