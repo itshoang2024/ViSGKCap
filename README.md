@@ -73,21 +73,27 @@ Output được xuất ở:
 
 ## 4. Cài đặt môi trường
 
-### 4.1. Yêu cầu hệ thống (Stage 0)
-Stage 0 dùng `pdf2image` cần **Poppler**.
+Repo hỗ trợ 2 cách cài môi trường:
 
-- Ubuntu/Debian:
-  ```bash
-  sudo apt-get update
-  sudo apt-get install -y poppler-utils
-  ```
-- macOS (Homebrew):
-  ```bash
-  brew install poppler
-  ```
-- Windows: cài Poppler và thêm vào PATH (hoặc chạy Stage 0 trên Colab).
+- **Option A (khuyến nghị): Conda env từ file `nlp-captioning.yml`** *(đúng với cách nhóm đang chạy)*
+- **Option B: venv + pip**
 
-### 4.2. Tạo virtual env + cài thư viện Python
+### 4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)
+
+Tạo env và kích hoạt:
+
+```bash
+conda env create -f nlp-captioning.yml
+conda activate nlp-captioning
+```
+
+Nếu bạn chạy **Jupyter Notebook/Lab**, nên đăng ký kernel:
+
+```bash
+python -m ipykernel install --user --name nlp-captioning --display-name "nlp-captioning"
+```
+
+### 4.2. Option B - Tạo virtual env + cài thư viện Python
 
 Khuyến nghị Python **3.10+**.
 
@@ -104,6 +110,30 @@ pip install pandas openpyxl tqdm pillow pdf2image python-dotenv google-generativ
 ```bash
 pip install jupyterlab
 ```
+
+### 4.3. Yêu cầu hệ thống (Stage 0)
+ Yêu cầu hệ thống (Stage 0)
+Stage 0 dùng `pdf2image` cần **Poppler**.
+
+- Ubuntu/Debian:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y poppler-utils
+  ```
+- macOS (Homebrew):
+  ```bash
+  brew install poppler
+  ```
+- Windows:
+  - Cách 1 (khuyến nghị): tải bằng conda: 
+    ```bash
+    conda install -c conda-forge poppler
+    ```
+  - Cách 2: tải thủ công trên trang chủ của poppler rồi thêm vào PATH
+  - Cách 3: chạy Stage 0 trên Colab:
+    ```bash
+    !apt-get install -y poppler-utils
+    ```
 
 ---
 
