@@ -6,6 +6,31 @@ Repo này triển khai pipeline **xây dựng dataset Image Captioning tiếng V
 
 ---
 
+## Mục lục
+
+- [Pipeline xây dựng dataset cho bài toán Image Captioning](#pipeline-xây-dựng-dataset-cho-bài-toán-image-captioning)
+  - [Mục lục](#mục-lục)
+  - [1. Dataset schema (output cuối)](#1-dataset-schema-output-cuối)
+  - [2. Sách trong phạm vi (10 quyển – lớp 1 đến 3 – Cánh Diều)](#2-sách-trong-phạm-vi-10-quyển--lớp-1-đến-3--cánh-diều)
+  - [3. Cấu trúc thư mục](#3-cấu-trúc-thư-mục)
+  - [4. Cài đặt môi trường](#4-cài-đặt-môi-trường)
+    - [4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)](#41-option-a---cài-bằng-conda-nlp-captioningyml)
+    - [4.2. Option B - Tạo virtual env + cài thư viện Python](#42-option-b---tạo-virtual-env--cài-thư-viện-python)
+    - [4.3. Yêu cầu hệ thống (Stage 0)](#43-yêu-cầu-hệ-thống-stage-0)
+  - [5. Cấu hình secrets (.env)](#5-cấu-hình-secrets-env)
+  - [6. Chạy pipeline để tái tạo kết quả](#6-chạy-pipeline-để-tái-tạo-kết-quả)
+    - [Stage 0: PDF → PNG](#stage-0-pdf--png)
+    - [Stage 1: Gemini captioning, mỗi quyển 1 lần](#stage-1-gemini-captioning-mỗi-quyển-1-lần)
+    - [Stage 2: Gộp stage1\_\*.xlsx → CSV import Supabase](#stage-2-gộp-stage1_xlsx--csv-import-supabase)
+    - [Supabase - Import → Human annotate/QC → Export CSV](#supabase---import--human-annotateqc--export-csv)
+    - [Stage 3: Postprocess → dataset\_final.json / jsonl](#stage-3-postprocess--dataset_finaljson--jsonl)
+  - [7. metadata\_catalog.csv (bắt buộc)](#7-metadata_catalogcsv-bắt-buộc)
+  - [8. Troubleshooting](#8-troubleshooting)
+  - [9. Ghi chú](#9-ghi-chú)
+
+---
+
+
 ## 1. Dataset schema (output cuối)
 
 Mỗi sample (một trang ảnh) có dạng:
@@ -31,11 +56,11 @@ Mỗi sample (một trang ảnh) có dạng:
 
 - **`caption_short`**: mô tả ngắn gọn/chung.
 - **`caption_detail`**: mô tả đầy đủ/chi tiết; nếu ảnh có chữ/bảng thì phải đưa nội dung chữ vào mô tả (inline OCR).
-- **`metadata`**: tra theo `metadata_catalog.csv` bằng **longest prefix match** (không dùng metadata mặc định).
+- **`metadata`**: tra theo [`metadata_catalog.csv`](data/stage3_inputs/metadata_catalog.csv) bằng **longest prefix match** (không dùng metadata mặc định).
 
 Output được xuất ở:
-- `output/stage3_processed_dataset/dataset_final.json`
-- `output/stage3_processed_dataset/dataset_final.jsonl`
+- [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
+- [`output/stage3_processed_dataset/dataset_final.jsonl`](output/stage3_processed_dataset/dataset_final.jsonl)
 
 ---
 
@@ -50,7 +75,7 @@ Output được xuất ở:
 ## 3. Cấu trúc thư mục
 
 ```
-.
+vn-textbook-caption-dataset
 ├── data
 │   ├── raw/                         # PDF gốc
 │   ├── processed/                   # PNG sau Stage 0
@@ -58,7 +83,7 @@ Output được xuất ở:
 │       ├── metadata_catalog.csv
 │       └── supabase_export.csv
 ├── output
-│   ├── stage1-generated-captions/   # stage1_*.xlsx (mỗi quyển 1 file)
+│   ├── stage1_generated_captions/   # stage1_*.xlsx (mỗi quyển 1 file)
 │   ├── stage2_supabase_input/       # stage2_supabase_input.csv
 │   └── stage3_processed_dataset/    # dataset_final.json/jsonl
 ├── prompts/                         # core + adapters
@@ -75,10 +100,11 @@ Output được xuất ở:
 
 Repo hỗ trợ 2 cách cài môi trường:
 
-- **Option A (khuyến nghị): Conda env từ file `nlp-captioning.yml`** *(đúng với cách nhóm đang chạy)*
+- **Option A (khuyến nghị): Conda env từ file [`nlp-captioning.yml`](nlp-captioning.yml)** *(đúng với cách nhóm đang chạy)*
 - **Option B: venv + pip**
 
 ### 4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)
+**File:** [nlp-captioning.yml](nlp-captioning.yml)
 
 Tạo env và kích hoạt:
 
@@ -138,8 +164,9 @@ Stage 0 dùng `pdf2image` cần **Poppler**.
 ---
 
 ## 5. Cấu hình secrets (.env)
+**File:** [.env](.env)
 
-Tạo file `.env` ở repo root:
+Tạo file [`.env`](.env) ở repo root:
 
 ```env
 # Gemini API Key
@@ -157,9 +184,10 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 ## 6. Chạy pipeline để tái tạo kết quả
 
-### Stage 0: PDF → PNG (chạy file `Stage0_pdf2png.ipynb`)
-**Input:** `data/raw/*.pdf`  
-**Output:** `data/processed/*.png`
+### Stage 0: PDF → PNG
+- **File:** [notebooks/Stage0_pdf2png.ipynb](notebooks/Stage0_pdf2png.ipynb)
+- **Input:** `data/raw/*.pdf`  
+- **Output:** `data/processed/*.png`
 
 Quy tắc đặt tên ảnh: `SGK_<Tên bộ sách>_<Tên sách>_<Lớp>_<Tap?>_<Trang>` (nếu không có tập thì bỏ Tap). Ví dụ: `SGK_CanhDieu_DaoDuc_1_page_001`
 
@@ -167,9 +195,10 @@ Quy tắc đặt tên ảnh: `SGK_<Tên bộ sách>_<Tên sách>_<Lớp>_<Tap?>_
 
 ---
 
-### Stage 1: Gemini captioning, mỗi quyển 1 lần (chạy file `Stage1_Gemini_Captioning.ipynb`)
-**Input:** `data/processed/*.png` (theo `PREFIX`) + `prompts/`  
-**Output:** `output/stage1-generated-captions/stage1_<PREFIX>.xlsx`
+### Stage 1: Gemini captioning, mỗi quyển 1 lần 
+- **File:** [notebooks/Stage1_Gemini_Captioning.ipynb](notebooks/Stage1_Gemini_Captioning.ipynb)
+- **Input:** `data/processed/*.png` (theo `PREFIX`) + `prompts/`  
+- **Output:** `output/stage1_generated_captions/stage1_<PREFIX>.xlsx`
 
 
 Cần chỉnh:
@@ -182,50 +211,38 @@ Tips:
 
 ---
 
-### Stage 2: Gộp stage1_*.xlsx → CSV import Supabase (chạy file `Stage2_XLSX_to_Supabase_CSV.ipynb`)
-**Input:** `output/stage1-generated-captions/stage1_*.xlsx`  
-**Output:** `output/stage2_supabase_input/stage2_supabase_input.csv`
+### Stage 2: Gộp stage1_*.xlsx → CSV import Supabase
+- **File:** [notebooks/Stage2_XLSX_to_Supabase_CSV.ipynb](notebooks/Stage2_XLSX_to_Supabase_CSV.ipynb)
+- **Input:** `output/stage1_generated_captions/stage1_*.xlsx`  
+- **Output:** [`output/stage2_supabase_input/stage2_supabase_input.csv`](output/stage2_supabase_input/stage2_supabase_input.csv)
 
 ---
 
 ### Supabase - Import → Human annotate/QC → Export CSV
 1) Tạo project Supabase.
-2) Mở SQL editor và chạy `supabase-schema.sql` để tạo enums + table `public.dataset`.
-3) Import file `stage2_supabase_input.csv` vào table `public.dataset`.
+2) Mở SQL editor và chạy [`supabase-schema.sql`](supabase-schema.sql) để tạo enums + table `public.dataset`.
+3) Import file [`stage2_supabase_input.csv`](output/stage2_supabase_input/stage2_supabase_input.csv) vào table `public.dataset`.
 4) Annotate/QC trực tiếp trên giao diện web UI của nhóm (sửa caption, set `is_checked` = `checked`/`reviewed`, gắn `error_tags`…). Xem guideline chi tiết trong báo cáo.
 5) Export table `public.dataset` ra CSV (Supabase export).
 
 Đặt file export vào:
-- `data/stage3_inputs/supabase_export.csv`
+- [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv)
 
 ---
 
-### Stage 3: Postprocess → dataset_final.json / jsonl (chạy file `Stage3_Postprocess.ipynb`)
-**Input:**  
-- `data/stage3_inputs/supabase_export.csv` (CSV export từ Supabase)  
-- `data/stage3_inputs/metadata_catalog.csv`
-
-**Output:**  
-- `output/stage3_processed_dataset/dataset_final.json`
-- `output/stage3_processed_dataset/dataset_final.jsonl`
-
-Cấu hình quan trọng:
-- `METADATA_CATALOG = Path("../data/stage3_inputs/metadata_catalog.csv")`
-- `STRICT_METADATA = True`  
-  → nếu `id` không match prefix trong catalog sẽ **raise error** (bắt lỗi sớm).
+### Stage 3: Postprocess → dataset_final.json / jsonl
+- **File:** [notebooks/Stage3_Postprocess.ipynb](notebooks/Stage3_Postprocess.ipynb) 
+- **Input:**  
+  - [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv) (CSV export từ Supabase)  
+  - [`data/stage3_inputs/metadata_catalog.csv`](data/stage3_inputs/metadata_catalog.csv)
+- **Output:**  
+  - [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
+  - [`output/stage3_processed_dataset/dataset_final.jsonl`](output/stage3_processed_dataset/dataset_final.jsonl)
 
 ---
 
 ## 7. metadata_catalog.csv (bắt buộc)
-
-File `metadata_catalog.csv` có format:
-
-```csv
-prefix,Type,Collection,Title,Grade,Subject,Volume,Author,Publisher
-SGK_CanhDieu_DaoDuc_1_,SGK,Cánh Diều,Đạo đức 1,1,Đạo đức,,...,...
-...
-```
-
+- **File:** [data/stage3_inputs/metadata_catalog.csv](data/stage3_inputs/metadata_catalog.csv)
 - `prefix` phải khớp prefix trong `id` (dùng longest prefix match).
 - Khuyến nghị dùng encoding UTF-8-SIG để mở Excel không lỗi.
 
