@@ -38,6 +38,7 @@ wheels/
 
 # ===== Data files (large files) =====
 *.png
+!images/*.png
 *.jpg
 *.jpeg
 
