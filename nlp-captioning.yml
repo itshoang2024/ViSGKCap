@@ -27,6 +27,9 @@ dependencies:
   # ===== Optional but useful for robustness =====
   - tenacity>=8.2    # retry logic (rate limit Gemini)
 
+  # ===== Jupyter support =====
+  - ipykernel>=6.29
+
   # ===== pip-only packages =====
   - pip
   - pip:
