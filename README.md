@@ -1,6 +1,12 @@
-# Pipeline xây dựng dataset cho bài toán Image Captioning
+# ViSGKCap: Bộ dữ liệu tạo mô tả ảnh SGK theo hướng ưu tiên khả năng tiếp cận
+[![Dataset](https://img.shields.io/badge/Dataset-bbdontcry%2FViSGKCap-blue?logo=huggingface)](https://huggingface.co/datasets/bbdontcry/ViSGKCap)
+[![Video Demo](https://img.shields.io/badge/Video%20Demo-YouTube-red?logo=youtube&logoColor=white)](https://youtu.be/nhavh-NRrK4)
 
-Repo này triển khai pipeline **xây dựng dataset Image Captioning tiếng Việt** từ SGK tiểu học (bộ **Cánh Diều**) theo hướng **accessibility-first**: caption mô tả rõ ràng, có **2 mức: short và detail**.
+Tiếng Việt | [English](README_EN.md)
+
+Repo này triển khai pipeline **xây dựng dataset Image Captioning tiếng Việt** từ [SGK tiểu học](https://sachgiaokhoa.online/) (bộ **Cánh Diều**) theo hướng **accessibility-first**: caption mô tả rõ ràng, có **2 mức: short và detail**.
+
+Báo cáo đầy đủ có tại: [`docs/report.pdf`](docs/report.pdf).
 
 > Mục tiêu: tái tạo được toàn bộ pipeline tạo dữ liệu (PDF → PNG → Gemini caption → CSV import Supabase → annotate/QC → export CSV → postprocess → JSON/JSONL cuối).
 
@@ -12,25 +18,24 @@ Repo này triển khai pipeline **xây dựng dataset Image Captioning tiếng V
 
 ## Mục lục
 
-- [Pipeline xây dựng dataset cho bài toán Image Captioning](#pipeline-xây-dựng-dataset-cho-bài-toán-image-captioning)
-  - [Mục lục](#mục-lục)
-  - [1. Dataset schema (output cuối)](#1-dataset-schema-output-cuối)
-  - [2. Sách trong phạm vi (10 quyển – lớp 1 đến 3 – Cánh Diều)](#2-sách-trong-phạm-vi-10-quyển--lớp-1-đến-3--cánh-diều)
-  - [3. Cấu trúc thư mục](#3-cấu-trúc-thư-mục)
-  - [4. Cài đặt môi trường](#4-cài-đặt-môi-trường)
-    - [4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)](#41-option-a---cài-bằng-conda-nlp-captioningyml)
-    - [4.2. Option B - Tạo virtual env + cài thư viện Python](#42-option-b---tạo-virtual-env--cài-thư-viện-python)
-    - [4.3. Yêu cầu hệ thống (Stage 0)](#43-yêu-cầu-hệ-thống-stage-0)
-  - [5. Cấu hình secrets (.env)](#5-cấu-hình-secrets-env)
-  - [6. Chạy pipeline để tái tạo kết quả](#6-chạy-pipeline-để-tái-tạo-kết-quả)
-    - [Stage 0: PDF → PNG](#stage-0-pdf--png)
-    - [Stage 1: Gemini captioning, mỗi quyển 1 lần](#stage-1-gemini-captioning-mỗi-quyển-1-lần)
-    - [Stage 2: Gộp stage1\_\*.xlsx → CSV import Supabase](#stage-2-gộp-stage1_xlsx--csv-import-supabase)
-    - [Supabase - Import → Human annotate/QC → Export CSV](#supabase---import--human-annotateqc--export-csv)
-    - [Stage 3: Postprocess → dataset\_final.json / jsonl](#stage-3-postprocess--dataset_finaljson--jsonl)
-  - [7. metadata\_catalog.csv (bắt buộc)](#7-metadata_catalogcsv-bắt-buộc)
-  - [8. Troubleshooting](#8-troubleshooting)
-  - [9. Ghi chú](#9-ghi-chú)
+- [Video hướng dẫn](#video-hướng-dẫn)
+- [1. Dataset schema (output cuối)](#1-dataset-schema-output-cuối)
+- [2. Sách trong phạm vi (10 quyển – lớp 1 đến 3 – Cánh Diều)](#2-sách-trong-phạm-vi-10-quyển--lớp-1-đến-3--cánh-diều)
+- [3. Cấu trúc thư mục](#3-cấu-trúc-thư-mục)
+- [4. Cài đặt môi trường](#4-cài-đặt-môi-trường)
+  - [4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)](#41-option-a---cài-bằng-conda-nlp-captioningyml)
+  - [4.2. Option B - Tạo virtual env + cài thư viện Python](#42-option-b---tạo-virtual-env--cài-thư-viện-python)
+  - [4.3. Yêu cầu hệ thống (Stage 0)](#43-yêu-cầu-hệ-thống-stage-0)
+- [5. Cấu hình secrets (.env)](#5-cấu-hình-secrets-env)
+- [6. Chạy pipeline để tái tạo kết quả](#6-chạy-pipeline-để-tái-tạo-kết-quả)
+  - [Stage 0: PDF → PNG](#stage-0-pdf--png)
+  - [Stage 1: Gemini captioning, mỗi quyển 1 lần](#stage-1-gemini-captioning-mỗi-quyển-1-lần)
+  - [Stage 2: Gộp stage1\_\*.xlsx → CSV import Supabase](#stage-2-gộp-stage1_xlsx--csv-import-supabase)
+  - [Supabase - Import → Human annotate/QC → Export CSV](#supabase---import--human-annotateqc--export-csv)
+  - [Stage 3: Postprocess → dataset\_final.json / jsonl](#stage-3-postprocess--dataset_finaljson--jsonl)
+- [7. metadata\_catalog.csv (bắt buộc)](#7-metadata_catalogcsv-bắt-buộc)
+- [8. Troubleshooting](#8-troubleshooting)
+- [9. Ghi chú](#9-ghi-chú)
 
 ---
 
@@ -92,7 +97,7 @@ vn-textbook-caption-dataset
 │   └── stage3_processed_dataset/    # dataset_final.json/jsonl
 ├── prompts/                         # core + adapters
 ├── supabase-schema.sql              # schema table + enums
-└── notebooks/ (khuyến nghị)         # Stage0/1/2/3
+└── notebooks/                       # Stage0/1/2/3
 ```
 
 > Lưu ý về **đường dẫn tương đối**: các Stage notebook mặc định dùng `Path("../data/...")` → nên đặt chúng trong thư mục `notebooks/` và chạy notebook từ đó.  
@@ -269,5 +274,5 @@ Tips:
 ---
 
 ## 9. Ghi chú
-- Guideline annotation: xem `ANNOTATION GUIDELINE (Accessibility-first).md`.
+- Guideline annotation: xem [`annotation_guideline.md`](./docs/annotation_guideline.md).
 - Repo này phục vụ mục đích học thuật/đồ án; hãy đảm bảo quyền sử dụng ngữ liệu theo quy định môn học/nhà trường.
