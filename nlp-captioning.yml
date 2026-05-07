@@ -40,3 +40,4 @@ dependencies:
       - jsonschema>=4.22
       - matplotlib>=3.8
       - pdf2image>=1.16    # Convert PDF to images
+      - dvc>=3.0           # Pull large dataset artifacts from DVC/DagsHub

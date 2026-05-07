@@ -36,9 +36,10 @@ wheels/
 *.swo
 *~
 
-# ===== Data files (large files) =====
-*.png
-!images/*.png
+# ===== Data artifacts =====
+# Large pipeline inputs/outputs are tracked through DVC pointer files.
+# Keep project images such as images/captioning-pipeline.png in Git.
+/output
 *.jpg
 *.jpeg
 

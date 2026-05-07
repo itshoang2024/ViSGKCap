@@ -1,0 +1,6 @@
+outs:
+- md5: de1de2dad6893f87763d93d4fb0e0cab.dir
+  size: 1321396374
+  nfiles: 1237
+  hash: md5
+  path: processed

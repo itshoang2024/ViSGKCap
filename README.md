@@ -26,6 +26,7 @@ Báo cáo đầy đủ có tại: [`docs/report.pdf`](docs/report.pdf).
   - [4.1. Option A - Cài bằng Conda (`nlp-captioning.yml`)](#41-option-a---cài-bằng-conda-nlp-captioningyml)
   - [4.2. Option B - Tạo virtual env + cài thư viện Python](#42-option-b---tạo-virtual-env--cài-thư-viện-python)
   - [4.3. Yêu cầu hệ thống (Stage 0)](#43-yêu-cầu-hệ-thống-stage-0)
+  - [4.4. DVC/DagsHub cho dữ liệu lớn](#44-dvcdagshub-cho-dữ-liệu-lớn)
 - [5. Cấu hình secrets (.env)](#5-cấu-hình-secrets-env)
 - [6. Chạy pipeline để tái tạo kết quả](#6-chạy-pipeline-để-tái-tạo-kết-quả)
   - [Stage 0: PDF → PNG](#stage-0-pdf--png)
@@ -71,6 +72,8 @@ Output được xuất ở:
 - [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
 - [`output/stage3_processed_dataset/dataset_final.jsonl`](output/stage3_processed_dataset/dataset_final.jsonl)
 
+Snapshot hiện tại: **1.237 mẫu**, khớp với 1.237 ảnh PNG trong `data/processed/` và 1.237 dòng trong `data/stage3_inputs/supabase_export_full.csv`.
+
 ---
 
 ## 2. Sách trong phạm vi (10 quyển – lớp 1 đến 3 – Cánh Diều)
@@ -90,7 +93,7 @@ vn-textbook-caption-dataset
 │   ├── processed/                   # PNG sau Stage 0
 │   └── stage3_inputs/               # input cho Stage 3
 │       ├── metadata_catalog.csv
-│       └── supabase_export.csv
+│       └── supabase_export_full.csv
 ├── output
 │   ├── stage1_generated_captions/   # stage1_*.xlsx (mỗi quyển 1 file)
 │   ├── stage2_supabase_input/       # stage2_supabase_input.csv
@@ -170,6 +173,35 @@ Stage 0 dùng `pdf2image` cần **Poppler**.
     !apt-get install -y poppler-utils
     ```
 
+### 4.4. DVC/DagsHub cho dữ liệu lớn
+
+Các artifact lớn của pipeline được quản lý bằng DVC pointer files thay vì commit trực tiếp vào Git:
+
+- `data/raw.dvc` theo dõi các PDF SGK gốc.
+- `data/processed.dvc` theo dõi ảnh PNG sau Stage 0.
+- `data/stage3_inputs/supabase_export_full.csv.dvc` theo dõi file export Supabase canonical.
+- `output.dvc` theo dõi output sinh ra ở Stage 1/2/3.
+
+Sau khi clone repo, kéo dữ liệu từ DagsHub DVC remote:
+
+```bash
+pip install dvc
+dvc pull
+```
+
+Remote mặc định đã được cấu hình trong repo: `https://dagshub.com/itshoang2024/ViSGKCap.dvc`.
+
+Để push dữ liệu lên remote, cấu hình credential ở local rồi chạy `dvc push`:
+
+```bash
+dvc remote modify dagshub --local auth basic
+dvc remote modify dagshub --local user <DAGSHUB_USERNAME>
+dvc remote modify dagshub --local password <DAGSHUB_TOKEN>
+dvc push
+```
+
+Giữ credential/token DagsHub trong local config hoặc biến môi trường. Không commit token hay thông tin xác thực cá nhân vào repo.
+
 ---
 
 ## 5. Cấu hình secrets (.env)
@@ -235,14 +267,14 @@ Tips:
 5) Export table `public.dataset` ra CSV (Supabase export).
 
 Đặt file export vào:
-- [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv)
+- [`data/stage3_inputs/supabase_export_full.csv`](data/stage3_inputs/supabase_export_full.csv)
 
 ---
 
 ### Stage 3: Postprocess → dataset_final.json / jsonl
 - **File:** [notebooks/Stage3_Postprocess.ipynb](notebooks/Stage3_Postprocess.ipynb) 
 - **Input:**  
-  - [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv) (CSV export từ Supabase)  
+  - [`data/stage3_inputs/supabase_export_full.csv`](data/stage3_inputs/supabase_export_full.csv) (CSV export từ Supabase)  
   - [`data/stage3_inputs/metadata_catalog.csv`](data/stage3_inputs/metadata_catalog.csv)
 - **Output:**  
   - [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
@@ -275,4 +307,5 @@ Tips:
 
 ## 9. Ghi chú
 - Guideline annotation: xem [`annotation_guideline.md`](./docs/annotation_guideline.md).
-- Repo này phục vụ mục đích học thuật/đồ án; hãy đảm bảo quyền sử dụng ngữ liệu theo quy định môn học/nhà trường.
+- Audit và ghi chú chuẩn bị public release: [`docs/project_audit.md`](docs/project_audit.md).
+- Repo này phục vụ mục đích học thuật/đồ án; repo không cấp license mở để tái phân phối dữ liệu phái sinh từ SGK. Hãy đảm bảo quyền sử dụng ngữ liệu theo quy định môn học/nhà trường và chính sách nội dung liên quan.

@@ -25,6 +25,7 @@ Full report available at: [`docs/report.pdf`](docs/report.pdf).
   - [4.1. Option A - Conda Environment](#41-option-a---conda-environment)
   - [4.2. Option B - Virtual Environment and Pip](#42-option-b---virtual-environment-and-pip)
   - [4.3. System Requirement for Stage 0](#43-system-requirement-for-stage-0)
+  - [4.4. Data Artifacts with DVC/DagsHub](#44-data-artifacts-with-dvcdagshub)
 - [5. Secrets Configuration](#5-secrets-configuration)
 - [6. Reproducing the Pipeline](#6-reproducing-the-pipeline)
   - [Stage 0: PDF to PNG](#stage-0-pdf-to-png)
@@ -70,6 +71,8 @@ Final outputs are written to:
 - [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
 - [`output/stage3_processed_dataset/dataset_final.jsonl`](output/stage3_processed_dataset/dataset_final.jsonl)
 
+Current dataset snapshot: **1,237 samples**, matching 1,237 PNG page images in `data/processed/` and 1,237 rows in `data/stage3_inputs/supabase_export_full.csv`.
+
 ---
 
 ## 2. Textbooks in Scope
@@ -91,7 +94,7 @@ vn-textbook-caption-dataset
 │   ├── processed/                   # PNG page images from Stage 0
 │   └── stage3_inputs/               # Inputs for Stage 3
 │       ├── metadata_catalog.csv
-│       └── supabase_export.csv
+│       └── supabase_export_full.csv
 ├── output
 │   ├── stage1_generated_captions/   # stage1_*.xlsx, one file per book
 │   ├── stage2_supabase_input/       # stage2_supabase_input.csv
@@ -174,6 +177,35 @@ Stage 0 uses `pdf2image`, which requires **Poppler**.
   ```bash
   !apt-get install -y poppler-utils
   ```
+
+### 4.4. Data Artifacts with DVC/DagsHub
+
+Large pipeline artifacts are tracked with DVC pointer files instead of direct Git blobs:
+
+- `data/raw.dvc` tracks the original textbook PDFs.
+- `data/processed.dvc` tracks the generated PNG page images.
+- `data/stage3_inputs/supabase_export_full.csv.dvc` tracks the canonical Supabase export.
+- `output.dvc` tracks generated Stage 1/2/3 outputs.
+
+After cloning, pull the artifacts from the DagsHub DVC remote:
+
+```bash
+pip install dvc
+dvc pull
+```
+
+The default remote is configured in this repository: `https://dagshub.com/itshoang2024/ViSGKCap.dvc`.
+
+To push data to the remote, configure credentials locally and then run `dvc push`:
+
+```bash
+dvc remote modify dagshub --local auth basic
+dvc remote modify dagshub --local user <DAGSHUB_USERNAME>
+dvc remote modify dagshub --local password <DAGSHUB_TOKEN>
+dvc push
+```
+
+Keep DagsHub credentials in local config or environment variables. Do not commit tokens or owner-specific credentials.
 
 ---
 
@@ -260,7 +292,7 @@ This stage merges generated caption files and converts array-like fields into a 
 
 Place the exported file at:
 
-- [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv)
+- [`data/stage3_inputs/supabase_export_full.csv`](data/stage3_inputs/supabase_export_full.csv)
 
 Annotation rules are documented in [`docs/annotation_guideline.md`](docs/annotation_guideline.md).
 
@@ -270,7 +302,7 @@ Annotation rules are documented in [`docs/annotation_guideline.md`](docs/annotat
 
 - **Notebook:** [`notebooks/Stage3_Postprocess.ipynb`](notebooks/Stage3_Postprocess.ipynb)
 - **Inputs:**
-  - [`data/stage3_inputs/supabase_export.csv`](data/stage3_inputs/supabase_export.csv)
+  - [`data/stage3_inputs/supabase_export_full.csv`](data/stage3_inputs/supabase_export_full.csv)
   - [`data/stage3_inputs/metadata_catalog.csv`](data/stage3_inputs/metadata_catalog.csv)
 - **Outputs:**
   - [`output/stage3_processed_dataset/dataset_final.json`](output/stage3_processed_dataset/dataset_final.json)
@@ -311,4 +343,5 @@ Annotation rules are documented in [`docs/annotation_guideline.md`](docs/annotat
 ## 9. Notes
 
 - Annotation guideline: [`docs/annotation_guideline.md`](docs/annotation_guideline.md)
-- This repository is intended for academic/coursework use. Make sure the textbook materials are used according to the requirements of your course, institution, and applicable content policies.
+- Project audit and release-readiness notes: [`docs/project_audit.md`](docs/project_audit.md)
+- This repository is intended for academic/coursework use. It does not grant an open redistribution license for textbook-derived materials; make sure the materials are used according to your course, institution, and applicable content policies.
